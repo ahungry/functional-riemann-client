@@ -8,7 +8,7 @@
  []
 
  :builds
- {:dev
+ {:fnrc
   {:target :node-library
    :output-to "lib/main.js"
    :output-dir "out"
