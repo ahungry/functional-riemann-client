@@ -5,9 +5,12 @@
 ;; :cljs/quit
 
 (ns fnrc.core
+  (:use-macros
+   [cljs.core.async.macros :only [go]])
   (:require
    [clojure.repl :as r]
    [cljs.nodejs :as node]
+   [cljs.core.async :refer [<! timeout]]
    ["protobufjs" :as proto]))
 
 (enable-console-print!)
@@ -74,8 +77,14 @@
   (verify "Event" test1))
 
 (defn ^:export foo []
-  (js/console.log "HIYAaaa")
-  (println "FOO"))
+  (go
+    (load-schema)
+    (<! (timeout 100))
+    (prn @schema)
+    (prn (test-verify))
+    (prn (test-event))
+    (js/console.log "HIYAaaa")
+    (println "FOO")))
 
 (defn init []
   (println "Hello world"))
