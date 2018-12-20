@@ -10,6 +10,8 @@
    [cljs.nodejs :as node]
    ["protobufjs" :as proto]))
 
+(enable-console-print!)
+
 (def schema (atom nil))
 
 (defn load-schema []
