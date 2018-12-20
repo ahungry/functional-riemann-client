@@ -5,10 +5,14 @@
   "src/test"]
 
  :dependencies
- []
+ [
+  [cider/cider-nrepl "0.18.0"]
+  ]
+
+ :nrepl {:port 8202}
 
  :builds
- {:fnrc
+ {:dev
   {:target :node-library
    :output-to "lib/main.js"
    :output-dir "out"
