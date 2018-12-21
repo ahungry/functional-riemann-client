@@ -6,7 +6,7 @@ console.log(fnrc.test_send)
 
 const sleep = () => {
   return new Promise((resolve, reject) => {
-    setTimeout(resolve, 100)
+    setTimeout(resolve, 1)
   })
 }
 
@@ -16,9 +16,11 @@ void async function main () {
   var sock = await fnrc.get_socket()
   console.log(sock)
   console.log(res)
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 5000; i++) {
     const x = fnrc.test_send(sock)
-    // await sleep()
+    if (0 === i % 100) {
+      await sleep()
+    }
     console.log(x)
   }
   await sleep(10)
