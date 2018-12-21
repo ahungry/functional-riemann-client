@@ -56,9 +56,20 @@
 (defn map-to-js [m]
   (apply js-obj (apply concat (seq m))))
 
-(defn serialize [type m]
+(defn obj->clj
+  [obj]
+  (if (goog.isObject obj)
+    (-> (fn [result key]
+          (let [v (goog.object/get obj key)]
+            (if (= "function" (goog/typeOf v))
+              result
+              (assoc result key (obj->clj v)))))
+        (reduce {} (.getKeys goog/object obj)))
+    obj))
+
+(defn serialize [type obj]
   (let [mtype (-> @schema (.lookupType type))
-        message (create mtype (map-to-js m))
+        message (create mtype obj)
         buffer (to-buffer mtype message)]
     buffer))
 
@@ -67,6 +78,9 @@
         buffer (Buffer/from message "binary")
         m (-> mtype (.decode buffer))]
     m))
+
+(def serialize-event (partial fnrc.core/serialize "Event"))
+(def deserialize-event (partial fnrc.core/deserialize "Event"))
 
 (defn test-event []
   (->>
