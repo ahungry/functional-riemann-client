@@ -169,13 +169,17 @@
        :host "ahungry.com"
        :service "fake"
        :state "ok"
-       :tags ["uno" "dos"]
+       :tags #js ["uno" "dos"]
        :ttl 15
        })
 
-(defn test-send []
+(def stub-send-msg
+  #js {:ok true
+       :events #js [stub-send-event]})
+
+(defn ^:export test-send []
   (-> (get-tcp-socket {:host "127.0.0.1" :port 5555})
-      (.send (serialize-event stub-send-event))))
+      (.send (serialize-message stub-send-msg))))
 
 ;; Just a jibberish export to test it.
 (defn ^:export foo []
@@ -183,6 +187,7 @@
    (fn [resolve reject]
      (->
       (load-schema)
+      (.then test-send)
       (.then resolve)))))
 
 (defn init []
