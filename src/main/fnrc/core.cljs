@@ -118,6 +118,7 @@
    (get chunk 3)
    ))
 
+;; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 (defn build-packet [payload]
   (let [len (.-length payload)
         packet (Buffer/alloc (+ 4 len))]
@@ -162,7 +163,15 @@
   (if @socket @socket
       (reset! socket (get-tcp-socket {:host "localhost" :port 5555}))))
 
-(def stub-send-event #js {:time 44 :metricF 32})
+(def stub-send-event
+  #js {:time 44
+       :metricF 32
+       :host "ahungry.com"
+       :service "fake"
+       :state "ok"
+       :tags ["uno" "dos"]
+       :ttl 15
+       })
 
 (defn test-send []
   (-> (get-tcp-socket {:host "127.0.0.1" :port 5555})
