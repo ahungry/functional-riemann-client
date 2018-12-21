@@ -48,15 +48,47 @@
             (is (= "Root" (.toString %))))))))
 
 (def stub-event #js {:time 44 :metricF 32})
-
-(deftest a-test []
-  (testing "Serial and Deserialize works"
+(deftest serializing-event-test []
+  (testing "Serial and Deserialize event works."
     (let [res (->> stub-event
                    core/serialize-event
                    core/deserialize-event
                    (core/to-object "Event")
                    js->clj)]
+      (is (= 32 (int (get res "metricF" ))))
       (is (= 44 (int (get res "time" )))))))
+
+(def stub-message #js {:ok true :error "oops"})
+(deftest serializing-message-test []
+  (testing "Serial and Deserialize message works."
+    (let [res (->> stub-message
+                   core/serialize-message
+                   core/deserialize-message
+                   (core/to-object "Msg")
+                   js->clj)]
+      (is (= true (boolean (get res "ok" ))))
+      (is (= "oops" (str (get res "error" )))))))
+
+(def stub-query #js {:string "Hello World"})
+(deftest serializing-query-test []
+  (testing "Serial and Deserialize query works."
+    (let [res (->> stub-query
+                   core/serialize-query
+                   core/deserialize-query
+                   (core/to-object "Query")
+                   js->clj)]
+      (is (= "Hello World" (str (get res "string")))))))
+
+(def stub-state #js {:ttl 55 :description "Hello World"})
+(deftest serializing-state-test []
+  (testing "Serial and Deserialize state works."
+    (let [res (->> stub-state
+                   core/serialize-state
+                   core/deserialize-state
+                   (core/to-object "State")
+                   js->clj)]
+      (is (= 55 (int (get res "ttl" ))))
+      (is (= "Hello World" (str (get res "description")))))))
 
 (defn -main []
   (go

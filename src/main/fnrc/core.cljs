@@ -81,6 +81,12 @@
 
 (def serialize-event (partial fnrc.core/serialize "Event"))
 (def deserialize-event (partial fnrc.core/deserialize "Event"))
+(def serialize-message (partial fnrc.core/serialize "Msg"))
+(def deserialize-message (partial fnrc.core/deserialize "Msg"))
+(def serialize-query (partial fnrc.core/serialize "Query"))
+(def deserialize-query (partial fnrc.core/deserialize "Query"))
+(def serialize-state (partial fnrc.core/serialize "State"))
+(def deserialize-state (partial fnrc.core/deserialize "State"))
 
 (defn test-event []
   (->>
