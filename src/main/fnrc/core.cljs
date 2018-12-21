@@ -67,6 +67,11 @@
         (reduce {} (.getKeys goog/object obj)))
     obj))
 
+;;   ___                  _
+;;  / __|___ _ _ ___ __ _| |
+;; | (__/ -_) '_/ -_) _` | |
+;;  \___\___|_| \___\__,_|_|
+
 (defn serialize [type obj]
   (let [mtype (-> @schema (.lookupType type))
         message (create mtype obj)
@@ -88,18 +93,7 @@
 (def serialize-state (partial fnrc.core/serialize "State"))
 (def deserialize-state (partial fnrc.core/deserialize "State"))
 
-(defn test-event []
-  (->>
-   {"metricF" 32
-    "time" 44}
-   (serialize "Event")
-   (deserialize "Event")))
-
-(def test1 #js {:metricF "fake" :bar false})
-
-(defn test-verify []
-  (verify "Event" test1))
-
+;; Just a jibberish export to test it.
 (defn ^:export foo []
   (js/Promise.
    (fn [resolve reject]
@@ -109,7 +103,3 @@
 
 (defn init []
   (println "Hello world"))
-
-(t/deftest a-test
-  (t/testing "FIXME, I fail."
-    (t/is (= 2 1))))
