@@ -90,6 +90,13 @@
       (is (= 55 (int (get res "ttl" ))))
       (is (= "Hello World" (str (get res "description")))))))
 
+(def stub-send-event #js {:time 44 :metricF 32})
+(deftest tcp-socket-send-test []
+  (testing "That we can send to the TCP socket fine."
+    (let [socket (core/get-tcp-socket {:host "localhost" :port 5555})]
+      (doto socket
+        (.send (core/serialize-event stub-send-event))))))
+
 (defn -main []
   (go
     (generate-promise-tests)

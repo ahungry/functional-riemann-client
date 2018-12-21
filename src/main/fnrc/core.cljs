@@ -15,9 +15,15 @@
    [clojure.spec.test.alpha :as stest]
    [cljs.nodejs :as node]
    [cljs.core.async :refer [<! timeout]]
+   ["net" :as net]
    ["protobufjs" :as proto]))
 
 (enable-console-print!)
+
+;;  ___     _
+;; / __| __| |_  ___ _ __  __ _
+;; \__ \/ _| ' \/ -_) '  \/ _` |
+;; |___/\__|_||_\___|_|_|_\__,_|
 
 (def schema (atom nil))
 
@@ -92,6 +98,75 @@
 (def deserialize-query (partial fnrc.core/deserialize "Query"))
 (def serialize-state (partial fnrc.core/serialize "State"))
 (def deserialize-state (partial fnrc.core/deserialize "State"))
+
+;;  _
+;; | |_ __ _ __
+;; |  _/ _| '_ \
+;;  \__\__| .__/
+;;        |_|
+(def socket-state (atom {:state 1
+                         :buffer-offset 0
+                         :buffer-length (Buffer/alloc 4)
+                         :payload-buffer nil
+                         :payload-offset 0}))
+
+(defn get-response-length [chunk]
+  (+
+   (bit-shift-left (get chunk 0) 24)
+   (bit-shift-left (get chunk 1) 16)
+   (bit-shift-left (get chunk 2) 8)
+   (get chunk 3)
+   ))
+
+(defn build-packet [payload]
+  (let [len (.-length payload)
+        packet (Buffer/alloc (+ 4 len))]
+    (aset packet 0 (bit-and (unsigned-bit-shift-right len 24) 0xff))
+    (aset packet 1 (bit-and (unsigned-bit-shift-right len 16) 0xff))
+    (aset packet 2 (bit-and (unsigned-bit-shift-right len 8) 0xff))
+    (aset packet 3 (bit-and (unsigned-bit-shift-right len 0) 0xff))
+    (-> payload (.copy packet 4 0))
+    packet))
+
+(defn get-tcp-socket [{:keys [host port]}]
+  (let [socket (net/Socket)]
+    (doto socket
+      (.connect port host)
+      (.setKeepAlive true 0)
+      (.setNoDelay true)
+      (.setTimeout 500 #(doto socket
+                          (.emit "error" (js/Error. "Failure to connect"))
+                          .destroy))
+      (.once "connect" #(doto socket (.setTimeout 0)))
+      )
+    (reify
+      Object
+      (send [this payload]
+        (let [packet (build-packet payload)]
+          (-> socket (.write packet))))
+      (onMessage [this emit]
+        (let [self this]
+          (doto socket
+            (.on "data"
+                 (fn [chunk]
+                   (let [chunk-offset 0]
+                     (while (< chunk-offset (.length chunk))
+                       (case (:state @socket-state)
+                         1 (println "Case 1")
+                         2 (println "Case 2")
+                             ))))))
+          )))))
+
+(def socket (atom nil))
+(defn get-socket! []
+  (if @socket @socket
+      (reset! socket (get-tcp-socket {:host "localhost" :port 5555}))))
+
+(def stub-send-event #js {:time 44 :metricF 32})
+
+(defn test-send []
+  (-> (get-tcp-socket {:host "127.0.0.1" :port 5555})
+      (.send (serialize-event stub-send-event))))
 
 ;; Just a jibberish export to test it.
 (defn ^:export foo []
