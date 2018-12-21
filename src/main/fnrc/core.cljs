@@ -9,6 +9,10 @@
    [cljs.core.async.macros :only [go]])
   (:require
    [clojure.repl :as r]
+   [clojure.test :as t]
+   [clojure.spec.alpha :as s]
+   [clojure.spec.gen.alpha :as gen]
+   [clojure.spec.test.alpha :as stest]
    [cljs.nodejs :as node]
    [cljs.core.async :refer [<! timeout]]
    ["protobufjs" :as proto]))
@@ -77,14 +81,15 @@
   (verify "Event" test1))
 
 (defn ^:export foo []
-  (go
-    (load-schema)
-    (<! (timeout 100))
-    (prn @schema)
-    (prn (test-verify))
-    (prn (test-event))
-    (js/console.log "HIYAaaa")
-    (println "FOO")))
+  (js/Promise.
+   (fn [resolve reject]
+     (->
+      (load-schema)
+      (.then resolve)))))
 
 (defn init []
   (println "Hello world"))
+
+(t/deftest a-test
+  (t/testing "FIXME, I fail."
+    (t/is (= 2 1))))
