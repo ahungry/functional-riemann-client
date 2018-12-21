@@ -129,39 +129,52 @@
     (-> payload (.copy packet 4 0))
     packet))
 
-(defn get-tcp-socket [{:keys [host port]}]
-  (let [socket (net/Socket)]
-    (doto socket
-      (.connect port host)
-      (.setKeepAlive true 0)
-      (.setNoDelay true)
-      (.setTimeout 500 #(doto socket
-                          (.emit "error" (js/Error. "Failure to connect"))
-                          .destroy))
-      (.once "connect" #(doto socket (.setTimeout 0)))
-      )
-    (reify
-      Object
-      (send [this payload]
-        (let [packet (build-packet payload)]
-          (-> socket (.write packet))))
-      (onMessage [this emit]
-        (let [self this]
-          (doto socket
-            (.on "data"
-                 (fn [chunk]
-                   (let [chunk-offset 0]
-                     (while (< chunk-offset (.length chunk))
-                       (case (:state @socket-state)
-                         1 (println "Case 1")
-                         2 (println "Case 2")
-                             ))))))
-          )))))
+(defn get-reified-socket [socket]
+  (reify
+    Object
+    (send [this payload]
+      (let [packet (build-packet payload)]
+        (-> socket (.write packet))))
+    (onMessage [this emit]
+      (let [self this]
+        (doto socket
+          (.on "data"
+               (fn [chunk]
+                 (let [chunk-offset 0]
+                   (while (< chunk-offset (.length chunk))
+                     (case (:state @socket-state)
+                       1 (println "Case 1")
+                       2 (println "Case 2")))))))))))
+
+(defn ^:export get-tcp-socket [{:keys [host port]}]
+  (js/Promise.
+   (fn [resolve reject]
+    (let [socket (net/Socket)]
+      (doto socket
+        (.connect port host)
+        (.setKeepAlive true 0)
+        (.setNoDelay true)
+        (.setTimeout 500
+                     #(doto socket
+                        ;; (.emit "error" (js/Error. "Failure to connect"))
+                        .destroy
+                        (reject "Failure to connect")))
+        (.once "connect"
+               #(doto socket
+                  (.setTimeout 0))
+               (let [ri (get-reified-socket socket)]
+                 (println (.-send ri))
+                 (resolve ri))))
+      ;; (get-reified-socket socket)
+      ))))
 
 (def socket (atom nil))
-(defn get-socket! []
-  (if @socket @socket
-      (reset! socket (get-tcp-socket {:host "localhost" :port 5555}))))
+(defn ^:export get-socket! []
+  (js/Promise.
+   (fn [resolve reject]
+     (resolve
+      (if @socket @socket
+          (reset! socket (get-tcp-socket {:host "localhost" :port 5555})))))))
 
 (def stub-send-event
   #js {:time 44
@@ -177,10 +190,9 @@
   #js {:ok true
        :events #js [stub-send-event]})
 
-(defn ^:export test-send []
-  (-> (get-socket!)
-      (.send (serialize-message stub-send-msg))))
-
+(defn ^:export test-send [sock]
+  (-> sock (.send (serialize-message stub-send-msg)))
+)
 ;; Just a jibberish export to test it.
 (defn ^:export foo []
   (js/Promise.

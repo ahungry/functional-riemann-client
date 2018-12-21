@@ -13,12 +13,15 @@ const sleep = () => {
 void async function main () {
   console.log('hi')
   var res = await fnrc.foo()
+  var sock = await fnrc.get_socket()
+  console.log(sock)
   console.log(res)
-  for (let i = 0; i < 20; i++) {
-    const x = await fnrc.test_send()
-    await sleep()
+  for (let i = 0; i < 200; i++) {
+    const x = fnrc.test_send(sock)
+    // await sleep()
     console.log(x)
   }
+  await sleep(10)
   console.log('all done')
   p.exit()
 }()

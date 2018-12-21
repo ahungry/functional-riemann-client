@@ -16,4 +16,7 @@
   {:target :node-library
    :output-to "lib/main.js"
    :output-dir "out"
-   :exports {:foo fnrc.core/foo :test-send fnrc.core/test-send}}}}
+   :exports {:foo fnrc.core/foo
+             :get-tcp-socket fnrc.core/get-tcp-socket
+             :get-socket fnrc.core/get-socket!
+             :test-send fnrc.core/test-send}}}}
