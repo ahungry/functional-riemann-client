@@ -201,5 +201,12 @@
       (load-schema)
       (.then resolve)))))
 
+(defn send-with-socket
+  "Send a test event to the listening riemann server."
+  []
+  (-> (get-socket!)
+      (.then test-send)
+      (.then prn)))
+
 (defn init []
   (println "Hello world"))
