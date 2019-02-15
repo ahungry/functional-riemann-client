@@ -1,8 +1,12 @@
-;; cider-connect localhost 8202 (nrepl)
-;; (shadow.cljs.devtools.api/node-repl :dev)
-;; (require 'fnrc.core)
-;; (fnrc.core/foo)
-;; :cljs/quit
+;; To get the shadow-cljs REPL working with this:
+;; 1. Run `C-c M-j runs the command cider-jack-in-clj' in Emacs
+;;      (or use: `M-x cider-connect' localhost 8202 (nrepl) if launching REPL from CLI)
+;; 2. Flip to REPL window, and run:
+;;      (shadow.cljs.devtools.api/node-repl :dev)
+;;      (require 'fnrc.core)
+;;      (fnrc.core/foo)
+;; 3. When done:
+;;      :cljs/quit
 
 (ns fnrc.core
   (:use-macros
