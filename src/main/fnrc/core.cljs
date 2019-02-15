@@ -187,12 +187,17 @@
        :service "fake"
        :state "ok"
        :tags #js ["uno" "dos"]
-       :ttl 15
+       :ttl 150
        })
 
+;; TODO: We can send many events in one request - this
+;; means we could add some type of polling/throttle to collect
+;; events on the client side, bundle them up in one array and ship
+;; it off all at once, vs one TCP call per event (which would be fine
+;; on UDP mode, but again, we're using TCP primarily).
 (def stub-send-msg
   #js {:ok true
-       :events #js [stub-send-event]})
+       :events #js [stub-send-event stub-send-event]})
 
 (defn ^:export test-send [sock]
   (-> sock (.send (serialize-message stub-send-msg)))
