@@ -186,8 +186,9 @@
        :host "ahungry.com"
        :service "fake"
        :state "ok"
+       :description "I am the description."
        :tags #js ["uno" "dos"]
-       :ttl 150
+       :ttl 15
        })
 
 ;; TODO: We can send many events in one request - this
